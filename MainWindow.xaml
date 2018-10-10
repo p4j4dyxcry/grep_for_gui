@@ -1,0 +1,112 @@
+﻿<Window x:Class="Grepper.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:models="clr-namespace:Grepper.Models"
+        xmlns:controls="clr-namespace:Grepper.Controls"
+        mc:Ignorable="d">
+    <Window.Resources>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Style.Setters>
+                <Setter Property="VerticalAlignment" Value="Center"></Setter>
+            </Style.Setters>
+        </Style>
+
+        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Style.Setters>
+                <Setter Property="MinWidth" Value="40"/>
+            </Style.Setters>
+        </Style>
+
+        <Style TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
+            <Style.Setters>
+                <Setter Property="AutoGenerateColumns" Value="False" />
+                <Setter Property="CanUserAddRows" Value="False" />
+                <Setter Property="CanUserDeleteRows" Value="False" />
+                <Setter Property="EnableRowVirtualization" Value="True"/>
+                <Setter Property="EnableColumnVirtualization" Value="True"/>
+                <Setter Property="CanUserSortColumns" Value="True" />
+                <Setter Property="HeadersVisibility" Value="Column" />
+                <Setter Property="IsSynchronizedWithCurrentItem" Value="False" />
+                <Setter Property="SelectionMode" Value="Extended" />
+                <Setter Property="SelectionUnit" Value="FullRow" />
+            </Style.Setters>
+        </Style>
+
+        <ObjectDataProvider x:Key="MultiSearchTypeKey" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="models:MultiSearchType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="400*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0">
+            <TextBlock Text="探す場所:"/>
+            <TextBox Text="{Binding FullPath}" HorizontalAlignment="Stretch"/>
+
+
+            <TextBlock Text="ファイル名に含まれる文字列:"/>
+            <TextBox Text="{Binding Filter}" HorizontalAlignment="Stretch"/>
+
+            <TextBlock Text="含まれる文字列:"/>
+            <TextBox Text="{Binding SearchWord}" HorizontalAlignment="Stretch"/>
+
+            <GroupBox Header="詳細オプション">
+                <StackPanel>
+                    <CheckBox IsChecked="{Binding IsSubDirectorySearch}" Content="サブディレクトリも含める"/>
+                    <CheckBox IsChecked="{Binding IsFileOnly}" Content="ファイルのみ検索"/>
+                    <CheckBox IsChecked="{Binding UseRegex}" Content="正規表現を利用"/>
+                    <WrapPanel>
+                        <TextBlock Text="複数ワード設定"/>
+                        <ComboBox ItemsSource="{Binding Source={StaticResource MultiSearchTypeKey}}" SelectedItem="{Binding MultiSearch}"/>
+                    </WrapPanel>
+                </StackPanel>
+            </GroupBox>
+            <WrapPanel>
+                <Button Content="検索" Command="{Binding SearchCommand}" Margin="5"/>
+                <Button Content="検索停止" Command="{Binding StopCommand}" Margin="5"/>
+            </WrapPanel>
+            <TextBlock Text="{Binding Status}"/>
+
+            <GroupBox Header="Debug">
+                <StackPanel>
+                    <Button Content="open with exploler" Command="{Binding OpenWithExplolerCommand}" Margin="5"/>
+                    <Button Content="open" Command="{Binding OpenCommand}" Margin="5"/>
+                </StackPanel>
+            </GroupBox>
+
+        </StackPanel>
+
+        <GridSplitter Grid.Column="1" Width="4" BorderBrush="Gray"/>
+
+        <Grid Grid.Column="2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <DataGrid Grid.Row="0" ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="名前" Binding="{Binding Name}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="ディレクトリ" Binding="{Binding Directory}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="ファイルサイズ" IsReadOnly="True" Binding="{Binding FileSize}"/>
+                        <DataGridTextColumn Header="行" IsReadOnly="True"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <controls:BindableTextEditor Grid.Row="1" BindText="{Binding PreviewText , Mode=OneWay}" WordWrap="True" SyntaxHighlighting="XML"/>
+            </Grid>
+        </Grid>
+    </Grid>
+
+</Window>
